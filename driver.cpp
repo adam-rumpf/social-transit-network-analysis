@@ -8,6 +8,8 @@ This project includes submodules for analyzing various aspects of the input neto
 */
 
 #include <iostream>
+#include "network.hpp"
+#include "objective.hpp"
 
 using namespace std;
 
