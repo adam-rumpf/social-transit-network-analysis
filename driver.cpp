@@ -48,7 +48,7 @@ int main()
 
 	// Display example alpha/beta parameter pairs
 	cout << "Example alpha/beta pairs:" << endl;
-	for (double alpha = 2.0; alpha <= 16.0; alpha += 1.0)
+	for (double alpha = 2.0; alpha <= 24.0; alpha += 2.0)
 		cout << "(" << alpha << ", " << (2 * alpha - 1) / (2 * alpha - 2) << ")" << setprecision(15) << endl;
 	cout << endl;
 
