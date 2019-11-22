@@ -229,8 +229,11 @@ Network::Network(string node_file_name, string arc_file_name, string transit_fil
 					lines[arc_line]->in_vehicle.push_back(new_arc);
 				}
 				if (arc_type == BOARDING_ARC)
-					// A boarding arc additionally goes into its line's boarding arc list
+				{
+					// A boarding arc additionally goes into its line's boarding arc list, and the tail of the arc is one of the line's stops
 					lines[arc_line]->boarding.push_back(new_arc);
+					lines[arc_line]->stops.push_back(nodes[arc_tail]);
+				}
 				if (arc_type == WALKING_ARC)
 					// A walking arc additionally goes into the network's walking arc list
 					walking_arcs.push_back(new_arc);

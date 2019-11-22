@@ -115,6 +115,7 @@ struct Line
 	//Public attributes
 	vector<Arc *> boarding; // pointers to associated boarding arcs
 	vector<Arc *> in_vehicle; // pointers to associated line arcs (in-vehicle travel)
+	vector<Node *> stops; // pointers to associated stop nodes
 	double circuit; // time required for a vehicle to complete one circuit (minutes)
 	double seating; // seating capacity of each vehicle used by this line
 	double day_fraction; // fraction of day during which the line operates (1.0 indicates full day)

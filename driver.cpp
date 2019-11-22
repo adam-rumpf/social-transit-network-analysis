@@ -10,7 +10,10 @@ This project includes submodules for analyzing various aspects of the input neto
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <queue>
 #include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 #include "network.hpp"
 #include "objective.hpp"
@@ -26,12 +29,16 @@ This project includes submodules for analyzing various aspects of the input neto
 
 // Define output file names
 #define STOP_METRIC_FILE "output/stop_metrics.txt"
+#define LINE_METRIC_FILE "output/line_metrics.txt"
 
 using namespace std;
+
+typedef pair<double, int> stop_pair; // used to define a min-priority queue of metric/stop ID pairs
 
 // Function prototypes
 void loading_factors(Network *);
 void record_stop_metrics(Network *, const vector<double> &);
+void record_line_metrics(Network *, const vector<double> &);
 
 /// Main driver.
 int main()
@@ -56,6 +63,9 @@ int main()
 
 	// Output stop metric file
 	record_stop_metrics(Net, stop_metrics);
+
+	// Output delineated stop metric file
+	record_line_metrics(Net, stop_metrics);
 
 	cin.get();
 
@@ -119,4 +129,58 @@ void record_stop_metrics(Network * net_in, const vector<double> &metrics)
 	}
 	else
 		cout << "Metric file failed to open." << endl;
+}
+
+/// Outputs the stop-level accessibility metrics, divided by line and sorted in ascending order for each line.
+void record_line_metrics(Network * net_in, const vector<double> &metrics)
+{
+	Network * Net = net_in;
+
+	/*
+	We store the line-level stop metrics as a vector of prority queues.
+
+	There is one priority queue for each line, containing metric/stop ID pairs in ascending order of metric.
+	*/
+
+	// Build a map from stop node IDs to metric vector indices
+	unordered_map<int, int> stop_remap;
+	for (int i = 0; i < Net->stop_nodes.size(); i++)
+		stop_remap[Net->stop_nodes[i]->id] = i;
+
+	// Build the line stop lists
+	vector<priority_queue<stop_pair, vector<stop_pair>, greater<stop_pair>>> line_stops(Net->lines.size());
+	for (int i = 0; i < Net->lines.size(); i++)
+	{
+		for (int j = 0; j < Net->lines[i]->stops.size(); j++)
+		{
+			int nid = Net->lines[i]->stops[j]->id;
+			double met = metrics[stop_remap[nid]];
+			line_stops[i].push(make_pair(met, nid));
+		}
+	}
+
+	ofstream out_file(LINE_METRIC_FILE);
+
+	if (out_file.is_open())
+	{
+		cout << "Writing line metrics to output file..." << endl;
+
+		// Write comment line
+		out_file << "Line_ID\tStop_ID\tGravity_Metric" << fixed << setprecision(15) << endl;
+
+		// Write all metrics
+		for (int i = 0; i < line_stops.size(); i++)
+		{
+			while (line_stops[i].empty() == false)
+			{
+				out_file << i << '\t' << line_stops[i].top().second << '\t' << line_stops[i].top().first << endl;
+				line_stops[i].pop();
+			}
+		}
+
+		out_file.close();
+		cout << "Successfuly recorded line metrics!" << endl;
+	}
+	else
+		cout << "Line metric file failed to open." << endl;
 }
