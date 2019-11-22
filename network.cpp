@@ -6,14 +6,14 @@ Network constructor to automatically build network from data files.
 Requires the names of the following input data files, in order:
 	node data
 	arc data
-	OD data
 	transit data
 	vehicle data
 	problem data
+	initial flow data
 
 Reads the contents of these files and uses them to fill its own line, node, and arc lists, while also initializing those objects.
 */
-Network::Network(string node_file_name, string arc_file_name, string transit_file_name, string vehicle_file_name, string problem_file_name)
+Network::Network(string node_file_name, string arc_file_name, string transit_file_name, string vehicle_file_name, string problem_file_name, string flow_file_name)
 {
 	// Read problem file to get time horizon
 	double horizon = 1440.0; // default to whole 24 hours
@@ -245,10 +245,38 @@ Network::Network(string node_file_name, string arc_file_name, string transit_fil
 	else
 		cout << "Arc file failed to open." << endl;
 
-	// Initialize empty stop file travel demand lists
-	cout << "Initializing travel demand arrays..." << endl;
-	for (int i = 0; i < stop_nodes.size(); i++)
-		stop_nodes[i]->incoming_demand.resize(stop_nodes.size(), 0.0);
+	// Read initial flow file and set arc flows
+	cout << "Reading initial flow data..." << endl;
+	ifstream flow_file;
+	flow_file.open(flow_file_name);
+	if (flow_file.is_open())
+	{
+		string line, piece; // whole line and line element being read
+		getline(flow_file, line); // skip comment line
+
+		while (flow_file.eof() == false)
+		{
+			// Get whole line as a string stream
+			getline(flow_file, line);
+			if (line.size() == 0)
+				// Break for blank line at file end
+				break;
+			stringstream stream(line);
+
+			// Go through each piece of the line
+			getline(stream, piece, '\t'); // ID
+			int arc_id = stoi(piece);
+			getline(stream, piece, '\t'); // Flow
+			double arc_flow = stod(piece);
+
+			// Set flow value of current arc
+			core_arcs[arc_id]->flow = arc_flow;
+		}
+
+		flow_file.close();
+	}
+	else
+		cout << "Initial flow file failed to open." << endl;
 
 	cout << "Network object complete!" << endl << endl;
 }

@@ -18,6 +18,7 @@ This project includes submodules for analyzing various aspects of the input neto
 #define VEHICLE_FILE "data/vehicle_data.txt"
 #define OBJECTIVE_FILE "data/objective_data.txt"
 #define PROBLEM_FILE "data/problem_data.txt"
+#define FLOW_FILE "data/initial_flows.txt"
 
 using namespace std;
 
@@ -25,7 +26,7 @@ using namespace std;
 int main()
 {
 	// Initialize network object
-	Network * Net = new Network(NODE_FILE, ARC_FILE, TRANSIT_FILE, VEHICLE_FILE, PROBLEM_FILE);
+	Network * Net = new Network(NODE_FILE, ARC_FILE, TRANSIT_FILE, VEHICLE_FILE, PROBLEM_FILE, FLOW_FILE);
 
 	cin.get();
 

@@ -58,7 +58,7 @@ struct Network
 	vector<Arc *> access_arcs; // pointers to access network walking arcs
 
 	// Public methods
-	Network(string, string, string, string, string); // constructor uses input data file names to automatically build the network
+	Network(string, string, string, string, string, string); // constructor uses input data file names to automatically build the network
 };
 
 /**
@@ -95,6 +95,7 @@ struct Arc
 	double cost; // constant travel time
 	int line = -1; // line ID (-1 if N/A)
 	bool boarding = false; // whether or not this is a boarding arc
+	double flow = 0; // initial flow value
 
 	// Public methods
 	Arc(int, Node*, Node*, double, int, int); // constructor sets ID, tail/head endpoints, cost, line, and type
