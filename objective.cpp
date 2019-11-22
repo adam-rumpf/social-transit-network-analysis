@@ -8,7 +8,7 @@ Requires the name of the objective data input file and a pointer to the network 
 Objective::Objective(string obj_file_name, Network * net_in)
 {
 	Net = net_in;
-	pop_size = Net->population_nodes.size();
+	stop_size = Net->stop_nodes.size();
 	fac_size = Net->facility_nodes.size();
 
 	// Read objective data
@@ -54,26 +54,9 @@ Objective::Objective(string obj_file_name, Network * net_in)
 }
 
 /**
-Calculates objective value.
+Calculates gravity metrics for all stops.
 
-Modified to use initial fleet sizes rather than variable.
-*/
-double Objective::calculate()
-{
-	vector<double> metrics = all_metrics(); // calculate all metrics
-	sort(metrics.begin(), metrics.end()); // sort metrics in ascending order
-
-	double sum = 0; // sum lowest metrics
-	for (int i = 0; i < lowest_metrics; i++)
-		sum += metrics[i];
-
-	return -sum; // return negative sum
-}
-
-/**
-Calculates gravity metrics for all population centers.
-
-Returns a vector of gravity metrics for each population center, ordered in the same way as the population center list.
+Returns a vector of gravity metrics for each stop, ordered in the same way as the stop list.
 
 Modified to use initial fleet sizes rather than variable.
 */
@@ -93,20 +76,20 @@ vector<double> Objective::all_metrics()
 			arc_costs[i] += headways[Net->core_arcs[i]->line]; // headway
 	}
 
-	// Initialize a population center-to-facility distance matrix
-	vector<vector<double>> distance(pop_size);
-	for (int i = 0; i < pop_size; i++)
+	// Initialize a stop-to-facility distance matrix
+	vector<vector<double>> distance(stop_size);
+	for (int i = 0; i < stop_size; i++)
 		distance[i].resize(fac_size);
 
 	// Calculate distances row-by-row using single-source Dijkstra in parallel over all sources
 	cout << "Calculating distances in parallel:\n|";
-	for (int i = 0; i < pop_size; i++)
+	for (int i = 0; i < stop_size; i++)
 		cout << '-'; // "length" of "progress bar"
 	cout << "|\n|";
-	parallel_for(0, pop_size, [&](int i)
+	parallel_for(0, stop_size, [&](int i)
 	{
 		cout << '*'; // shows progress
-		population_to_all_facilities(i, arc_costs, distance[i]);
+		stops_to_all_facilities(i, arc_costs, distance[i]);
 	});
 	cout << '|' << endl;
 
@@ -114,35 +97,27 @@ vector<double> Objective::all_metrics()
 	cout << "Calculating facility metrics." << endl;
 	vector<double> fac_met(fac_size);
 	for (int i = 0; i < fac_size; i++)
-	{
 		fac_met[i] = facility_metric(i, distance);
-		cout << fac_met[i] << ' ';
-	}
-	cout << endl;
 
-	// Do same for all population centers to get the gravity metrics
-	cout << "Calculating population metrics." << endl;
-	vector<double> pop_met(pop_size);
-	for (int i = 0; i < pop_size; i++)
-	{
-		pop_met[i] = population_metric(i, distance, fac_met);
-		cout << pop_met[i] << ' ';
-	}
-	cout << endl;
+	// Do same for all stops to get the gravity metrics
+	cout << "Calculating stop metrics." << endl;
+	vector<double> stop_met(stop_size);
+	for (int i = 0; i < stop_size; i++)
+		stop_met[i] = stop_metric(i, distance, fac_met);
 
-	return pop_met;
+	return stop_met;
 }
 
 /**
-Calculates the distance from a given population center to all primary care facilities.
+Calculates the distance from a given stop to all primary care facilities.
 
-Requires the index of a population center (as a position in the population center list) and reference to the total arc cost vector and a distance matrix row.
+Requires the index of a stop (as a position in the stop list) and reference to the total arc cost vector and a distance matrix row.
 
 Returns nothing, but updates the referenced row with all distances.
 
-Distance calculations are accomplished with a priority queue implementation of single-sink Dijkstra. Note that this method will be run in parallel for all population centers, and so must rely on mostly local variables, treating all other data as read-only.
+Distance calculations are accomplished with a priority queue implementation of single-sink Dijkstra. Note that this method will be run in parallel for all stops, and so must rely on mostly local variables, treating all other data as read-only.
 */
-void Objective::population_to_all_facilities(int source, const vector<double> &core_cost, vector<double> &row)
+void Objective::stops_to_all_facilities(int source, const vector<double> &core_cost, vector<double> &row)
 {
 	/*
 	To explain some of the technical details, the standard C++ priority queue container does not easily allow changing the priorities of its entries. This makes the tentative distance reduction step of Dijkstra's algorithm more difficult since we cannot simply reduce priorities (distances) in the queue.
@@ -154,12 +129,12 @@ void Objective::population_to_all_facilities(int source, const vector<double> &c
 
 	// Initialize Dijkstra data structures
 	vector<double> dist(Net->nodes.size(), INFINITY); // tentative distance to every node (all initially infinite)
-	dist[Net->population_nodes[source]->id] = 0.0; // distance from source to self is 0
+	dist[Net->stop_nodes[source]->id] = 0.0; // distance from source to self is 0
 	unordered_set<int> unsearched_sinks; // set of facility node IDs, to be removed as they are searched as a stopping criterion
 	for (int i = 0; i < fac_size; i++)
 		unsearched_sinks.insert(Net->facility_nodes[i]->id);
 	priority_queue<dist_pair, vector<dist_pair>, greater<dist_pair>> dist_queue; // min-priority queue to hold distance/ID pairs sorted by distance
-	dist_queue.push(make_pair(0.0, Net->population_nodes[source]->id)); // initialize queue with only the source node and its distance of zero
+	dist_queue.push(make_pair(0.0, Net->stop_nodes[source]->id)); // initialize queue with only the source node and its distance of zero
 
 	// Main Dijkstra loop
 	while (unsearched_sinks.empty() == false)
@@ -215,15 +190,15 @@ Requires the index of a facility (as a position in the facility list) and a refe
 
 The facility gravity metric for a facility j is defined by
 	V_j = sum_k P_k d_kj^(-beta)
-where the sum is over all population centers k, P_k is the population at center k, d_kj is the distance from center k to facility j, and beta is the gravity model exponent.
+where the sum is over all stops k, P_k is the population at stop k (taken as 1.0 for all stops), d_kj is the distance from center k to facility j, and beta is the gravity model exponent.
 */
 double Objective::facility_metric(int fac, vector<vector<double>> &distance)
 {
 	double sum = 0.0; // running total
 
 	// Calculate each term of the sum
-	for (int i = 0; i < pop_size; i++)
-		sum += Net->population_nodes[i]->value * pow(distance[i][fac], -gravity_exponent);
+	for (int i = 0; i < stop_size; i++)
+		sum += pow(distance[i][fac], -gravity_exponent);
 
 	return sum;
 }
@@ -231,19 +206,19 @@ double Objective::facility_metric(int fac, vector<vector<double>> &distance)
 /**
 Calculates the gravity metric for a given population center.
 
-Requires the index of a population center (as a position in the population center list), a reference to the entire distance matrix, and a reference to the facility metric vector.
+Requires the index of a stop (as a position in the stop list), a reference to the entire distance matrix, and a reference to the facility metric vector.
 
 The population gravity metric for a population center i is defined by
 	A_i = sum_j (S_j d_ij^(-beta))/V_j
 where the sum is over all facilities j, S_j is the capacity (or quality) of facility j, and d_ij, beta, and V_j all mean the same thing as for the facility metric.
 */
-double Objective::population_metric(int pop, vector<vector<double>> &distance, vector<double> &fac_metric)
+double Objective::stop_metric(int stop, vector<vector<double>> &distance, vector<double> &fac_metric)
 {
 	double sum = 0.0; // running total
 
 	// Calculate each term of the sum
 	for (int i = 0; i < fac_size; i++)
-		sum += (Net->facility_nodes[i]->value * pow(distance[pop][i], -gravity_exponent)) / fac_metric[i];
+		sum += (Net->facility_nodes[i]->value * pow(distance[stop][i], -gravity_exponent)) / fac_metric[i];
 
 	return multiplier * sum; // apply multiplication factor to result
 }
