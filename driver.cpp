@@ -104,6 +104,44 @@ void loading_factors(Network * net_in)
 		tot += factors[i];
 	cout << "Average loading factor (all core arcs):  " << tot / Net->core_arcs.size() << endl;
 	cout << "Average loading factor (line arcs only): " << tot / Net->line_arcs.size() << endl << endl;
+
+	// Count factors within certain ranges
+	vector<double> bounds = { -1, 0.0, 1.0, 1.25, 1.5, 2.0, 3.0, 4.0, INFINITY };
+	vector<int> counts(bounds.size(), 0);
+	for (int i = 0; i < factors.size(); i++)
+	{
+		int j = 0;
+		while (factors[i] > bounds[j])
+			j++;
+		counts[j - 1]++;
+	}
+	cout << "Number of core arcs in each range:" << endl;
+	for (int i = 0; i < bounds.size() - 1; i++)
+	{
+		if (i == 0)
+			cout << "[0, ";
+		else
+			cout << "(" << bounds[i] << ", ";
+		cout << bounds[i + 1];
+		if (i == bounds.size())
+			cout << "inf) : ";
+		else
+			cout << "] : ";
+		cout << counts[i] << endl;
+	}
+	cout << endl;
+
+	// Output arcs with an excessive load factor
+	cout << "Arcs with load factors of more than 2:" << endl;
+	for (int i = 0; i < factors.size(); i++)
+	{
+		if (factors[i] > 2)
+		{
+			Arc * a = Net->core_arcs[i];
+			cout << "Arc " << a->id << " (" << a->tail->id << ", " << a->head->id << "), Load " << factors[i] << ", Line " << a->line << endl;
+		}
+	}
+	cout << endl;
 }
 
 /// Outputs the stop-level accessibility metrics.
