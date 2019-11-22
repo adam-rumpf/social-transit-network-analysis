@@ -58,7 +58,7 @@ struct Network
 	vector<Arc *> access_arcs; // pointers to access network walking arcs
 
 	// Public methods
-	Network(string, string, string, string, string, string); // constructor uses input data file names to automatically build the network
+	Network(string, string, string, string, string); // constructor uses input data file names to automatically build the network
 };
 
 /**

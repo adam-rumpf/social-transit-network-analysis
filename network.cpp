@@ -13,7 +13,7 @@ Requires the names of the following input data files, in order:
 
 Reads the contents of these files and uses them to fill its own line, node, and arc lists, while also initializing those objects.
 */
-Network::Network(string node_file_name, string arc_file_name, string od_file_name, string transit_file_name, string vehicle_file_name, string problem_file_name)
+Network::Network(string node_file_name, string arc_file_name, string transit_file_name, string vehicle_file_name, string problem_file_name)
 {
 	// Read problem file to get time horizon
 	double horizon = 1440.0; // default to whole 24 hours
@@ -249,40 +249,6 @@ Network::Network(string node_file_name, string arc_file_name, string od_file_nam
 	cout << "Initializing travel demand arrays..." << endl;
 	for (int i = 0; i < stop_nodes.size(); i++)
 		stop_nodes[i]->incoming_demand.resize(stop_nodes.size(), 0.0);
-
-	// Read OD file and create travel demand lists for nodes
-	cout << "Reading OD data..." << endl;
-	ifstream od_file;
-	od_file.open(od_file_name);
-	if (od_file.is_open())
-	{
-		string line, piece; // whole line and line element being read
-		getline(od_file, line); // skip comment line
-
-		while (od_file.eof() == false)
-		{
-			// Get whole line as a string stream
-			getline(od_file, line);
-			if (line.size() == 0)
-				// Break for blank line at file end
-				break;
-			stringstream stream(line);
-
-			// Go through each piece of the line
-			getline(stream, piece, '\t'); // ID
-			getline(stream, piece, '\t'); // Origin
-			int origin_node = stoi(piece);
-			getline(stream, piece, '\t'); // Destination
-			int destination_node = stoi(piece);
-			getline(stream, piece, '\t'); // Volume
-			double travel_volume = stod(piece);
-
-			// Read travel volume from the origin into its destination's travel demand list
-			nodes[destination_node]->incoming_demand[origin_node] = travel_volume;
-		}
-	}
-	else
-		cout << "OD file failed to open." << endl;
 
 	cout << "Network object complete!" << endl << endl;
 }
