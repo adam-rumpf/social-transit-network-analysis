@@ -85,6 +85,8 @@ struct Node
 A class for the public transit network's arcs.
 
 Stores various arc-level attributes.
+
+Modified for use in the network analysis process (specifically for loading factor calculation).
 */
 struct Arc
 {
@@ -106,7 +108,7 @@ A class for the public transit network's lines.
 
 Stores various line-level attributes.
 
-Also includes methods for calculating the frequency and capacity for a given fleet size. This is to avoid having to store fleet sizes internally, since we will be considering many different fleet sizes during the neighborhood searches.
+Modified to store fleet size internally for use in calculating initial loading factors.
 */
 struct Line
 {
@@ -117,10 +119,11 @@ struct Line
 	double seating; // seating capacity of each vehicle used by this line
 	double day_fraction; // fraction of day during which the line operates (1.0 indicates full day)
 	double day_horizon; // daily time horizon (minutes)
+	int fleet = 0; // initial fleet size
 
 	// Public methods
-	Line(double, double, double, double); // constructor sets circuit time, seating capacity, active fraction of day, and daily time horizon
-	double frequency(int); // returns frequency resulting from a given fleet size
-	double headway(int); // returns average headway resulting from a given fleet size
-	double capacity(int); // returns capacity resulting from a given fleet size
+	Line(double, double, double, double, int); // constructor sets circuit time, seating capacity, active fraction of day, daily time horizon, and fleet size
+	double frequency(); // returns frequency resulting from a given fleet size
+	double headway(); // returns average headway resulting from a given fleet size
+	double capacity(); // returns capacity resulting from a given fleet size
 };

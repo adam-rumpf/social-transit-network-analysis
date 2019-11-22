@@ -155,6 +155,7 @@ Network::Network(string node_file_name, string arc_file_name, string transit_fil
 			getline(stream, piece, '\t'); // Type
 			int vehicle_type = stoi(piece);
 			getline(stream, piece, '\t'); // Fleet
+			int fleet_size = stoi(piece);
 			getline(stream, piece, '\t'); // Circuit
 			double circuit_time = stod(piece);
 			getline(stream, piece, '\t'); // Scaling
@@ -166,7 +167,7 @@ Network::Network(string node_file_name, string arc_file_name, string transit_fil
 			getline(stream, piece, '\t'); // Capacity
 
 			// Create a line object and add it to the list
-			Line * new_line = new Line(circuit_time, vehicle_seating[vehicle_type], day_fraction, horizon);
+			Line * new_line = new Line(circuit_time, vehicle_seating[vehicle_type], day_fraction, horizon, fleet_size);
 			lines.push_back(new_line);
 		}
 
@@ -309,23 +310,24 @@ Arc::Arc(int id_in, Node * tail_in, Node * head_in, double cost_in, int line_in,
 		boarding = false;
 }
 
-/// Line constructor specifies its circuit time, seating capacity, active fraction of day, and daily time horizon.
-Line::Line(double circuit_in, double seating_in, double fraction_in, double horizon_in)
+/// Line constructor specifies its circuit time, seating capacity, active fraction of day, daily time horizon, and initial fleet size.
+Line::Line(double circuit_in, double seating_in, double fraction_in, double horizon_in, int fleet_in)
 {
 	circuit = circuit_in;
 	seating = seating_in;
 	day_fraction = fraction_in;
 	day_horizon = horizon_in;
+	fleet = fleet_in;
 }
 
-/// Returns line frequency resulting from a given fleet size.
-double Line::frequency(int fleet)
+/// Returns line frequency resulting from current fleet size.
+double Line::frequency()
 {
 	return fleet / circuit;
 }
 
-/// Returns average line headway resulting from a given fleet size.
-double Line::headway(int fleet)
+/// Returns average line headway resulting from current fleet size.
+double Line::headway()
 {
 	if (fleet > 0)
 		return circuit / fleet;
@@ -333,8 +335,8 @@ double Line::headway(int fleet)
 		return INFINITY;
 }
 
-/// Returns line capacity resulting from a given fleet size.
-double Line::capacity(int fleet)
+/// Returns line capacity resulting from current fleet size.
+double Line::capacity()
 {
-	return frequency(fleet) * day_fraction * day_horizon * seating;
+	return frequency() * day_fraction * day_horizon * seating;
 }

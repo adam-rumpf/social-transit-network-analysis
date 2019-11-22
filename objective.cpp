@@ -56,11 +56,11 @@ Objective::Objective(string obj_file_name, Network * net_in)
 /**
 Calculates objective value.
 
-Requires a solution vector, which is passed directly to the all_metrics() method for use in calculating all population center gravity metrics. The objective value is the sum of the lowest few of these metrics (specifically, the number stored in "lowest_metrics"). Because the TS/SA algorithm is written to minimize its objective, we actually return the negative of this value.
+Modified to use initial fleet sizes rather than variable.
 */
-double Objective::calculate(const vector<int> &fleet)
+double Objective::calculate()
 {
-	vector<double> metrics = all_metrics(fleet); // calculate all metrics
+	vector<double> metrics = all_metrics(); // calculate all metrics
 	sort(metrics.begin(), metrics.end()); // sort metrics in ascending order
 
 	double sum = 0; // sum lowest metrics
@@ -73,16 +73,16 @@ double Objective::calculate(const vector<int> &fleet)
 /**
 Calculates gravity metrics for all population centers.
 
-Requires a solution vector, which is then used to calculate the gravity metrics for each population center.
-
 Returns a vector of gravity metrics for each population center, ordered in the same way as the population center list.
+
+Modified to use initial fleet sizes rather than variable.
 */
-vector<double> Objective::all_metrics(const vector<int> &fleet)
+vector<double> Objective::all_metrics()
 {
 	// Generate a vector of line headways based on the fleet sizes
 	vector<double> headways(Net->lines.size());
 	for (int i = 0; i < headways.size(); i++)
-		headways[i] = Net->lines[i]->headway(fleet[i]);
+		headways[i] = Net->lines[i]->headway();
 
 	// Generate a vector of core arc total costs (base cost plus headway)
 	vector<double> arc_costs(Net->core_arcs.size());
