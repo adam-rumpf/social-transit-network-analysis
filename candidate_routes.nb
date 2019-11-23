@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[      8889,        217]
-NotebookOptionsPosition[      7877,        177]
-NotebookOutlinePosition[      8220,        192]
-CellTagsIndexPosition[      8177,        189]
+NotebookDataLength[     28967,        790]
+NotebookOptionsPosition[     27796,        745]
+NotebookOutlinePosition[     28139,        760]
+CellTagsIndexPosition[     28096,        757]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -54,7 +54,22 @@ the parameters are updated.\
 \>", "Text",
  CellChangeTimes->{{3.780771419110817*^9, 3.780771456481101*^9}}],
 
-Cell[BoxData["xxx"], "Input",
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"expresstodo", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{"i", ",", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", "0", ",", "125"}], "}"}]}], "]"}]}], ";", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "list", " ", "of", " ", "IDs", " ", "of", " ", "lines", " ", "for", " ", 
+    "which", " ", "to", " ", "create", " ", "an", " ", "express", " ", 
+    "route", " ", 
+    RowBox[{"(", 
+     RowBox[{
+     "includes", " ", "only", " ", "bus", " ", "routes", " ", "for", " ", 
+      "Chicago", " ", "network"}], ")"}]}], " ", "*)"}]}]], "Input",
  CellChangeTimes->{{3.7807714685817165`*^9, 3.780771469692157*^9}, {
    3.7807722664852037`*^9, 3.7807723285478315`*^9}, {3.7807723622388773`*^9, 
    3.7807724136701546`*^9}, {3.78084871435122*^9, 3.780848790950302*^9}, 
@@ -100,7 +115,8 @@ Cell[BoxData["xxx"], "Input",
    3.781222683887783*^9, 3.7812226873382235`*^9}, 3.7812228167200346`*^9, {
    3.782320289723398*^9, 3.782320292056741*^9}, 3.7823203428701305`*^9, {
    3.7823204535972333`*^9, 3.7823204571647677`*^9}, 3.782320488175474*^9, {
-   3.7832751342874274`*^9, 3.783275190321265*^9}}]
+   3.7832751342874274`*^9, 3.783275190321265*^9}, {3.783529645031732*^9, 
+   3.7835297670376325`*^9}}]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -159,19 +175,571 @@ order from top to bottom.\
  CellChangeTimes->{{3.7807716306375384`*^9, 3.780771649293496*^9}, {
   3.7808685835746193`*^9, 3.7808686061162567`*^9}}],
 
-Cell["xxx", "Section",
+Cell[CellGroupData[{
+
+Cell["File Load", "Section",
  CellChangeTimes->{{3.780771521038786*^9, 3.7807715235126934`*^9}, {
   3.7807720128307896`*^9, 3.7807720163927107`*^9}, {3.7832752158998203`*^9, 
-  3.783275216956482*^9}}],
+  3.783275216956482*^9}, {3.7835295711900277`*^9, 3.7835295724161053`*^9}}],
+
+Cell["\<\
+Reads the network data files to assemble graph objects and data structures.\
+\>", "Text",
+ CellChangeTimes->{{3.7835295798334684`*^9, 3.783529600112133*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"Set", " ", "directory"}], " ", "*)"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"SetDirectory", "[", 
+     RowBox[{"NotebookDirectory", "[", "]"}], "]"}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{"Read", " ", "node", " ", "data"}], " ", "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"nodedata", "=", 
+     RowBox[{"Partition", "[", 
+      RowBox[{
+       RowBox[{"ReadList", "[", 
+        RowBox[{"\"\<data//node_data.txt\>\"", ",", "Word"}], "]"}], ",", 
+       "5"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"ncomment", "=", 
+     RowBox[{"nodedata", "[", 
+      RowBox[{"[", "1", "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"nid", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"nodedata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "1"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"nname", "=", 
+     RowBox[{"nodedata", "[", 
+      RowBox[{"[", 
+       RowBox[{
+        RowBox[{"2", ";;"}], ",", "2"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"ntype", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"nodedata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "3"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"nline", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"nodedata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "4"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"nvalue", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"nodedata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "5"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Clear", "[", "nodedata", "]"}], ";"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{"Read", " ", "arc", " ", "data"}], " ", "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"arcdata", "=", 
+     RowBox[{"Partition", "[", 
+      RowBox[{
+       RowBox[{"ReadList", "[", 
+        RowBox[{"\"\<data//arc_data.txt\>\"", ",", "Word"}], "]"}], ",", 
+       "6"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"acomment", "=", 
+     RowBox[{"arcdata", "[", 
+      RowBox[{"[", "1", "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"aid", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"arcdata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "1"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"atype", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"arcdata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "2"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"aline", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"arcdata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "3"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"arc", "=", 
+     RowBox[{"Table", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"ToExpression", "[", 
+         RowBox[{"arcdata", "[", 
+          RowBox[{"[", 
+           RowBox[{"i", ",", "4"}], "]"}], "]"}], "]"}], "\[DirectedEdge]", 
+        RowBox[{"ToExpression", "[", 
+         RowBox[{"arcdata", "[", 
+          RowBox[{"[", 
+           RowBox[{"i", ",", "5"}], "]"}], "]"}], "]"}]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"i", ",", "2", ",", 
+         RowBox[{"Length", "[", "arcdata", "]"}]}], "}"}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"atime", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"arcdata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "6"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Clear", "[", "arcdata", "]"}], ";"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{"Read", " ", "transit", " ", "data"}], " ", "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"linedata", "=", 
+     RowBox[{"Partition", "[", 
+      RowBox[{
+       RowBox[{"ReadList", "[", 
+        RowBox[{"\"\<data//transit_data.txt\>\"", ",", "Word"}], "]"}], ",", 
+       "11"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"lcomment", "=", 
+     RowBox[{"linedata", "[", 
+      RowBox[{"[", "1", "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"lid", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"linedata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "1"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"lname", "=", 
+     RowBox[{"linedata", "[", 
+      RowBox[{"[", 
+       RowBox[{
+        RowBox[{"2", ";;"}], ",", "2"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"ltype", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"linedata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "3"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"lfleet", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"linedata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "4"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"lcircuit", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"linedata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "5"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"lscaling", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"linedata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "6"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"llb", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"linedata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "7"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"lub", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"linedata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "8"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"lfare", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"linedata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "9"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"lfreq", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"linedata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "10"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"lcap", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"linedata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "11"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Clear", "[", "linedata", "]"}], ";"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{"Read", " ", "initial", " ", "flows"}], " ", "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"flowdata", "=", 
+     RowBox[{"Partition", "[", 
+      RowBox[{
+       RowBox[{"ReadList", "[", 
+        RowBox[{"\"\<data//initial_flows.txt\>\"", ",", "Word"}], "]"}], ",", 
+       "2"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"fcomment", "=", 
+     RowBox[{"flowdata", "[", 
+      RowBox[{"[", "1", "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"fid", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"flowdata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "1"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"fflow", "=", 
+     RowBox[{"ToExpression", "[", 
+      RowBox[{"flowdata", "[", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"2", ";;"}], ",", "2"}], "]"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Clear", "[", "flowdata", "]"}], ";"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{"Read", " ", "initial", " ", "solution", " ", "log"}], " ", 
+    "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"logdata", "=", 
+     RowBox[{"Partition", "[", 
+      RowBox[{
+       RowBox[{"ReadList", "[", 
+        RowBox[{"\"\<data//initial_solution_log.txt\>\"", ",", "Word"}], 
+        "]"}], ",", "8"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{
+     RowBox[{"Read", " ", "line"}], "-", 
+     RowBox[{"level", " ", "stop", " ", "metric", " ", "data"}]}], " ", 
+    "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"metdata", "=", 
+     RowBox[{
+      RowBox[{"Partition", "[", 
+       RowBox[{
+        RowBox[{"ReadList", "[", 
+         RowBox[{"\"\<output//line_metrics.txt\>\"", ",", "Word"}], "]"}], 
+        ",", "3"}], "]"}], "[", 
+      RowBox[{"[", 
+       RowBox[{"2", ";;"}], "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"linemetrics", "=", 
+     RowBox[{"ConstantArray", "[", 
+      RowBox[{
+       RowBox[{"{", "}"}], ",", 
+       RowBox[{"Length", "[", "lid", "]"}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Do", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"linemetrics", "[", 
+        RowBox[{"[", 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{"ToExpression", "[", 
+            RowBox[{"metdata", "[", 
+             RowBox[{"[", 
+              RowBox[{"i", ",", "1"}], "]"}], "]"}], "]"}], "+", "1"}], ")"}],
+          "]"}], "]"}], "=", 
+       RowBox[{"Append", "[", 
+        RowBox[{
+         RowBox[{"linemetrics", "[", 
+          RowBox[{"[", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"ToExpression", "[", 
+              RowBox[{"metdata", "[", 
+               RowBox[{"[", 
+                RowBox[{"i", ",", "1"}], "]"}], "]"}], "]"}], "+", "1"}], 
+            ")"}], "]"}], "]"}], ",", 
+         RowBox[{"ToExpression", "[", 
+          RowBox[{"metdata", "[", 
+           RowBox[{"[", 
+            RowBox[{"i", ",", 
+             RowBox[{"2", ";;", "3"}]}], "]"}], "]"}], "]"}]}], "]"}]}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"{", 
+       RowBox[{"i", ",", "1", ",", 
+        RowBox[{"Length", "[", "metdata", "]"}]}], "}"}]}], "]"}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Clear", "[", "metdata", "]"}], ";"}], 
+   "\[IndentingNewLine]"}]}]], "Input",
+ CellChangeTimes->{{3.7835302097148952`*^9, 3.7835302329805803`*^9}, {
+   3.7835302763974824`*^9, 3.7835306201619473`*^9}, {3.7835306891601353`*^9, 
+   3.783530759856991*^9}, {3.78353086894108*^9, 3.7835309418281965`*^9}, {
+   3.783530980135295*^9, 3.783531111164279*^9}, {3.783531159648484*^9, 
+   3.7835312248793583`*^9}, {3.7835312693348775`*^9, 3.783531311756509*^9}, {
+   3.7835314181119223`*^9, 3.783531504282431*^9}, {3.7835315430512056`*^9, 
+   3.7835317312619295`*^9}, {3.7835318063456116`*^9, 
+   3.7835319966329117`*^9}, {3.783532028946336*^9, 3.783532094889991*^9}, 
+   3.78353505798984*^9, 3.783535481064458*^9}]
+}, Open  ]],
 
 Cell[CellGroupData[{
 
 Cell["File Export", "Section",
  CellChangeTimes->{{3.7809626146101227`*^9, 3.7809626162315845`*^9}}],
 
-Cell["xxx", "Text",
+Cell["Writes updated versions of data files.", "Text",
  CellChangeTimes->{{3.7809626206251726`*^9, 3.7809626535056324`*^9}, {
-  3.783275221809955*^9, 3.7832752222068377`*^9}}]
+  3.783275221809955*^9, 3.7832752222068377`*^9}, {3.7835322471225834`*^9, 
+  3.783532254693207*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"Set", " ", "directory"}], " ", "*)"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"SetDirectory", "[", 
+     RowBox[{"NotebookDirectory", "[", "]"}], "]"}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{"Write", " ", "node", " ", "data"}], " ", "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"nodedata", "=", 
+     RowBox[{"{", "ncomment", "}"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Do", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"nodedata", "=", 
+       RowBox[{"Append", "[", 
+        RowBox[{"nodedata", ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"nid", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"nname", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"ntype", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"nline", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"nvalue", "[", 
+            RowBox[{"[", "i", "]"}], "]"}]}], "}"}]}], "]"}]}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"{", 
+       RowBox[{"i", ",", "1", ",", 
+        RowBox[{"Length", "[", "nid", "]"}]}], "}"}]}], "]"}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Export", "[", 
+     RowBox[{
+     "\"\<output//node_data.txt\>\"", ",", "nodedata", ",", "\"\<Table\>\"", 
+      ",", 
+      RowBox[{"\"\<FieldSeparators\>\"", "\[Rule]", "\"\<\\t\>\""}]}], "]"}], 
+    ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Clear", "[", "nodedata", "]"}], ";"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{"Write", " ", "arc", " ", "data"}], " ", "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"arcdata", "=", 
+     RowBox[{"{", "acomment", "}"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Do", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"arcdata", "=", 
+       RowBox[{"Append", "[", 
+        RowBox[{"arcdata", ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"aid", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"atype", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"aline", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"arc", "[", 
+            RowBox[{"[", 
+             RowBox[{"i", ",", "1"}], "]"}], "]"}], ",", 
+           RowBox[{"arc", "[", 
+            RowBox[{"[", 
+             RowBox[{"i", ",", "2"}], "]"}], "]"}], ",", 
+           RowBox[{"atime", "[", 
+            RowBox[{"[", "i", "]"}], "]"}]}], "}"}]}], "]"}]}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"{", 
+       RowBox[{"i", ",", "1", ",", 
+        RowBox[{"Length", "[", "aid", "]"}]}], "}"}]}], "]"}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Export", "[", 
+     RowBox[{
+     "\"\<output//arc_data.txt\>\"", ",", "arcdata", ",", "\"\<Table\>\"", 
+      ",", 
+      RowBox[{"\"\<FieldSeparators\>\"", "\[Rule]", "\"\<\\t\>\""}]}], "]"}], 
+    ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Clear", "[", "arcdata", "]"}], ";"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{"Write", " ", "transit", " ", "data"}], " ", "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"linedata", "=", 
+     RowBox[{"{", "lcomment", "}"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Do", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"linedata", "=", 
+       RowBox[{"Append", "[", 
+        RowBox[{"linedata", ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"lid", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"lname", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"ltype", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"lfleet", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"lcircuit", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"lscaling", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"llb", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"lub", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"lfare", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"lfreq", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"lcap", "[", 
+            RowBox[{"[", "i", "]"}], "]"}]}], "}"}]}], "]"}]}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"{", 
+       RowBox[{"i", ",", "1", ",", 
+        RowBox[{"Length", "[", "lid", "]"}]}], "}"}]}], "]"}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Export", "[", 
+     RowBox[{
+     "\"\<output//transit_data.txt\>\"", ",", "linedata", ",", 
+      "\"\<Table\>\"", ",", 
+      RowBox[{"\"\<FieldSeparators\>\"", "\[Rule]", "\"\<\\t\>\""}]}], "]"}], 
+    ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Clear", "[", "linedata", "]"}], ";"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{"Write", " ", "initial", " ", "flows"}], " ", "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"flowdata", "=", 
+     RowBox[{"{", "fcomment", "}"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Do", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"flowdata", "=", 
+       RowBox[{"Append", "[", 
+        RowBox[{"flowdata", ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"fid", "[", 
+            RowBox[{"[", "i", "]"}], "]"}], ",", 
+           RowBox[{"fflow", "[", 
+            RowBox[{"[", "i", "]"}], "]"}]}], "}"}]}], "]"}]}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"{", 
+       RowBox[{"i", ",", "1", ",", 
+        RowBox[{"Length", "[", "fid", "]"}]}], "}"}]}], "]"}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Export", "[", 
+     RowBox[{
+     "\"\<output//initial_flows.txt\>\"", ",", "flowdata", ",", 
+      "\"\<Table\>\"", ",", 
+      RowBox[{"\"\<FieldSeparators\>\"", "\[Rule]", "\"\<\\t\>\""}]}], "]"}], 
+    ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Clear", "[", "flowdata", "]"}], ";"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", " ", 
+    RowBox[{"Write", " ", "initial", " ", "solution", " ", "log"}], " ", 
+    "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Export", "[", 
+     RowBox[{
+     "\"\<output//initial_solution_log.txt\>\"", ",", "logdata", ",", 
+      "\"\<Table\>\"", ",", 
+      RowBox[{"\"\<FieldSeparators\>\"", "\[Rule]", "\"\<\\t\>\""}]}], "]"}], 
+    ";"}], "\[IndentingNewLine]"}]}]], "Input",
+ CellChangeTimes->CompressedData["
+1:eJxTTMoPSmViYGAQBWIQnfPA7E6TwRvHVwny90G07o6eJyB6jV4rfzOQviKv
+KgGiK3J+K4DoENl5eiB6WsMucxAdFtJiA6KPOT71AdFJB74EgegtyjLRIDpw
++6oEEB1k+iMVRN+b4lwMotdyctaB6KrFD5tA9K7EjFkg2oH/9GIQfcFhym6w
+eR7z9oPoc1V3joPoA/KCD0D0IfvzX0F05P27Zi1A+szebU4g+tf+q+4guuOk
+XSiI9rKViQbRQU7JcSCapcKrEkRbXA+sAtEerRfrQfQEDZFmEL23TNOmFUiv
+q39jC6JL8qVCQHQRL1MciPaSOpACopf5XEkF0bUb52WC6IIjx/NANAD5iqE1
+
+  "]]
 }, Open  ]]
 }, Open  ]]
 },
@@ -201,22 +769,27 @@ Cell[1120, 38, 245, 3, 30, "ItemNumbered"]
 Cell[CellGroupData[{
 Cell[1402, 46, 99, 1, 63, "Section"],
 Cell[1504, 49, 273, 5, 49, "Text"],
-Cell[1780, 56, 3454, 46, 31, "Input"]
+Cell[1780, 56, 4044, 62, 72, "Input"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[5271, 107, 96, 1, 63, "Section"],
-Cell[5370, 110, 187, 4, 30, "Text"],
-Cell[5560, 116, 1074, 17, 31, "Input"],
-Cell[6637, 135, 273, 9, 5, "Text"]
+Cell[5861, 123, 96, 1, 63, "Section"],
+Cell[5960, 126, 187, 4, 30, "Text"],
+Cell[6150, 132, 1074, 17, 31, "Input"],
+Cell[7227, 151, 273, 9, 5, "Text"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[6959, 150, 94, 1, 64, "Chapter"],
-Cell[7056, 153, 328, 6, 49, "Text"],
-Cell[7387, 161, 194, 3, 63, "Section"],
+Cell[7549, 166, 94, 1, 64, "Chapter"],
+Cell[7646, 169, 328, 6, 49, "Text"],
 Cell[CellGroupData[{
-Cell[7606, 168, 100, 1, 49, "Section"],
-Cell[7709, 171, 140, 2, 30, "Text"]
+Cell[7999, 179, 250, 3, 63, "Section"],
+Cell[8252, 184, 167, 3, 30, "Text"],
+Cell[8422, 189, 11727, 346, 1212, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[20186, 540, 100, 1, 63, "Section"],
+Cell[20289, 543, 226, 3, 30, "Text"],
+Cell[20518, 548, 7250, 193, 912, "Input"]
 }, Open  ]]
 }, Open  ]]
 }
