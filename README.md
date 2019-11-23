@@ -8,7 +8,7 @@ Specifically, this is a set of programs meant for performing the following tasks
 * [Stop-Level Metrics (C++)](#stop-level-metrics)
 * [Candidate Express Route Generation (Mathematica)](#candidate-express-route-generation)
 
-These procedures are explained in more detail below.
+These procedures are explained in more detail below. They are so specific to my applications that I would not expect them to be useful to anyone outside of my research group, but they are being provided here for anyone interested.
 
 ## Data Folder
 
