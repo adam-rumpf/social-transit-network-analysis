@@ -132,10 +132,10 @@ void loading_factors(Network * net_in)
 	cout << endl;
 
 	// Output arcs with an excessive load factor
-	cout << "Arcs with load factors of more than 2:" << endl;
+	cout << "Arcs with load factors of more than 1.5:" << endl;
 	for (int i = 0; i < factors.size(); i++)
 	{
-		if (factors[i] > 2)
+		if (factors[i] > 1.5)
 		{
 			Arc * a = Net->core_arcs[i];
 			cout << "Arc " << a->id << " (" << a->tail->id << ", " << a->head->id << "), Load " << factors[i] << ", Line " << a->line << endl;
