@@ -7,6 +7,7 @@ Specifically, this is a set of programs meant for performing the following tasks
 * [Loading Factor Calculation (C++)](#loading-factor-calculation)
 * [Stop-Level Metrics (C++)](#stop-level-metrics)
 * [Candidate Express Route Generation (Mathematica)](#candidate-express-route-generation)
+* [Solution Log Editing (Python)](#solution-log-editing)
 
 These procedures are explained in more detail below. They are so specific to my applications that I would not expect them to be useful to anyone outside of my research group, but they are being provided here for anyone interested.
 
@@ -62,3 +63,10 @@ The general idea behind express route generation is, for each line, to pick a su
 The network definition files (`arc_data.txt`, `initial_flows.txt`, `node_data.txt`, and `transit_data.txt`) are all updated to include the express routes, each of which is assumed to begin with a fleet size of `0`. The updated files are placed in the `output/` folder in order to preserve the original versions.
 
 The parameters for the express route generation process are defined and explained in the notebook file.
+
+## Solution Log Editing
+
+This is a set of Python functions for editing solution logs between trial sets. Includes the following functions:
+
+* `log_merge(log_in1, log_in2, log_out)`: Accepts file paths to two existing solution logs and an output file path. Merges the two input logs into a single output log by combining all entries.
+* `feasibility_check(log_in, user_cost, log_out)`: Accepts file paths to a solution log file, user cost data file, and an output file path. Reads the initial user cost and the percentage increase from the user cost file and uses it to re-evaluate the feasibility of all solution log entries.
