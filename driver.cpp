@@ -28,6 +28,7 @@ This project includes submodules for analyzing various aspects of the input neto
 #define FLOW_FILE "data/initial_flows.txt"
 #define FINAL_SOLUTION_FILE "data/final.txt"
 #define SOLUTION_LOG_FILE "data/solution.txt"
+#define INITIAL_SOLUTION_LOG_FILE "data/initial_solution_log.txt"
 
 // Define output file names
 #define STOP_METRIC_FILE "output/stop_metrics.txt"
@@ -42,6 +43,8 @@ void loading_factors(Network *);
 void record_stop_metrics(Network *, const vector<double> &);
 void record_line_metrics(Network *, const vector<double> &);
 void solution_log_stats();
+void compare_solutions(Network *);
+vector<int> str2vec(string, char);
 
 /// Main driver.
 int main()
@@ -72,6 +75,9 @@ int main()
 
 	// Calculate solution log statistics
 	solution_log_stats();
+
+	// Calculate solution comparison
+	compare_solutions(Net);
 
 	cin.get();
 
@@ -279,15 +285,108 @@ void solution_log_stats()
 	else
 		cout << "Solution log failed to open." << endl;
 
-	cout << "\nSolution log statistics (all):" << endl;
+	cout << "\n\nSolution log statistics (all):" << fixed << setprecision(2) << endl;
 	int feasible_total = feasible_count[0] + feasible_count[1] + feasible_count[2];
 	cout << "Total:              " << feasible_total << endl;
-	cout << "Percent unknown:    " << (100.0 * feasible_count[0]) / feasible_total << '%' << endl;
-	cout << "Percent infeasible: " << (100.0 * feasible_count[1]) / feasible_total << '%' << endl;
-	cout << "Percent feasible:   " << (100.0 * feasible_count[2]) / feasible_total << '%' << endl;
+	cout << "Percent unknown:    " << (100.0 * feasible_count[0]) / feasible_total << " %" << endl;
+	cout << "Percent infeasible: " << (100.0 * feasible_count[1]) / feasible_total << " %" << endl;
+	cout << "Percent feasible:   " << (100.0 * feasible_count[2]) / feasible_total << " %" << endl;
 	cout << "\nSolution log statistics (known only):" << endl;
 	feasible_total = feasible_count[1] + feasible_count[2];
 	cout << "Total:              " << feasible_total << endl;
-	cout << "Percent infeasible: " << (100.0 * feasible_count[1]) / feasible_total << '%' << endl;
-	cout << "Percent feasible:   " << (100.0 * feasible_count[2]) / feasible_total << '%' << endl;
+	cout << "Percent infeasible: " << (100.0 * feasible_count[1]) / feasible_total << " %" << endl;
+	cout << "Percent feasible:   " << (100.0 * feasible_count[2]) / feasible_total << " %" << endl << endl;
+}
+
+/// Compares initial solution to final solution.
+void compare_solutions(Network * net_in)
+{
+	Network * Net = net_in;
+
+	string sol_string = "";
+
+	// Read initial solution log
+	cout << "Reading initial solution log..." << endl;
+	ifstream sol_file;
+	sol_file.open(SOLUTION_LOG_FILE);
+	if (sol_file.is_open())
+	{
+		string line, piece; // whole line and line element being read
+		getline(sol_file, line); // skip comment line
+		int count = 0;
+
+		while (sol_file.eof() == false)
+		{
+			// Get whole line as a string stream
+			getline(sol_file, line);
+			if (line.size() == 0)
+				// Break for blank line at file end
+				break;
+			stringstream stream(line);
+
+			// Go through each piece of the line
+			getline(stream, piece, '\t'); // solution
+			sol_string = piece;
+		}
+
+		sol_file.close();
+		cout << "Solution log read!" << endl;
+	}
+	else
+		cout << "Solution log failed to open." << endl;
+
+	// Convert solution string to a solution vector
+	vector<int> sol_initial = str2vec(sol_string, '_');
+
+	// Read final solution
+	cout << "Reading final solution..." << endl;
+	sol_file.open(FINAL_SOLUTION_FILE);
+	if (sol_file.is_open())
+	{
+		string line, piece; // whole line and line element being read
+		getline(sol_file, line);
+		sol_string = line;
+
+		sol_file.close();
+		cout << "Solution read!" << endl;
+	}
+	else
+		cout << "Solution failed to open." << endl;
+
+	// Convert solution string to a solution vector
+	vector<int> sol_final = str2vec(sol_string, '\t');
+
+	// Calculate changes in solution vector elements
+	priority_queue<tuple<int, int, int, string>> comparison_queue;
+	for (int i = 0; i < sol_initial.size(); i++)
+		comparison_queue.push(make_tuple(abs(sol_final[i] - sol_initial[i]), sol_final[i] - sol_initial[i], i, Net->lines[i]->name));
+	cout << "\nSolution element changes (sorted by amount of change):" << endl;
+	cout << "ID\tName\tChange" << endl;
+	while (comparison_queue.empty() == false)
+	{
+		int diff = get<1>(comparison_queue.top());
+		int id = get<2>(comparison_queue.top());
+		string name = get<3>(comparison_queue.top());
+		string diff_string;
+		if (diff > 0)
+			diff_string = '+' + to_string(diff);
+		else
+			diff_string = to_string(diff);
+		comparison_queue.pop();
+		cout << id << '\t' << name << '\t' << diff_string << endl;
+	}
+	cout << endl;
+}
+
+/// Converts a solution string back into an integer solution vector.
+vector<int> str2vec(string sol, char delimiter)
+{
+	vector<int> out;
+	stringstream sol_stream(sol);
+	string element;
+
+	while (getline(sol_stream, element, delimiter))
+		out.push_back(stoi(element));
+
+	return out;
 }

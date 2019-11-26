@@ -152,6 +152,7 @@ Network::Network(string node_file_name, string arc_file_name, string transit_fil
 			// Go through each piece of the line
 			getline(stream, piece, '\t'); // ID
 			getline(stream, piece, '\t'); // Name
+			string name = piece;
 			getline(stream, piece, '\t'); // Type
 			int vehicle_type = stoi(piece);
 			getline(stream, piece, '\t'); // Fleet
@@ -167,7 +168,7 @@ Network::Network(string node_file_name, string arc_file_name, string transit_fil
 			getline(stream, piece, '\t'); // Capacity
 
 			// Create a line object and add it to the list
-			Line * new_line = new Line(circuit_time, vehicle_seating[vehicle_type], day_fraction, horizon, fleet_size);
+			Line * new_line = new Line(circuit_time, vehicle_seating[vehicle_type], day_fraction, horizon, fleet_size, name);
 			lines.push_back(new_line);
 		}
 
@@ -313,14 +314,15 @@ Arc::Arc(int id_in, Node * tail_in, Node * head_in, double cost_in, int line_in,
 		boarding = false;
 }
 
-/// Line constructor specifies its circuit time, seating capacity, active fraction of day, daily time horizon, and initial fleet size.
-Line::Line(double circuit_in, double seating_in, double fraction_in, double horizon_in, int fleet_in)
+/// Line constructor specifies its circuit time, seating capacity, active fraction of day, daily time horizon, initial fleet size, and line name.
+Line::Line(double circuit_in, double seating_in, double fraction_in, double horizon_in, int fleet_in, string name_in)
 {
 	circuit = circuit_in;
 	seating = seating_in;
 	day_fraction = fraction_in;
 	day_horizon = horizon_in;
 	fleet = fleet_in;
+	name = name_in;
 }
 
 /// Returns line frequency resulting from current fleet size.

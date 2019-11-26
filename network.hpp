@@ -121,9 +121,10 @@ struct Line
 	double day_fraction; // fraction of day during which the line operates (1.0 indicates full day)
 	double day_horizon; // daily time horizon (minutes)
 	int fleet = 0; // initial fleet size
+	string name; // line name
 
 	// Public methods
-	Line(double, double, double, double, int); // constructor sets circuit time, seating capacity, active fraction of day, daily time horizon, and fleet size
+	Line(double, double, double, double, int, string); // constructor sets circuit time, seating capacity, active fraction of day, daily time horizon, fleet size, and name
 	double frequency(); // returns frequency resulting from a given fleet size
 	double headway(); // returns average headway resulting from a given fleet size
 	double capacity(); // returns capacity resulting from a given fleet size
