@@ -84,9 +84,9 @@ def log_merge(log_in1, log_in2, log_out, highest=True):
         print(comment[:-1], file=f)
 
         for key in dic:
-            line = key + '\t'
-            for e in dic[key]:
-                line += str(e) + '\t'
+            line = key + '\t' + str(dic[key][0]) + '\t'
+            for e in dic[key][1:]:
+                line += str("%.15f"%e) + '\t'
             print(line, file=f)
 
         print("Output log written.")
@@ -115,9 +115,59 @@ def feasibility_update(log_in, user_cost, log_out):
     user cost parameters.
     """
 
-    # print statistics along the way
+    # Read user cost data
+    initial = 0.0
+    percent = 0.0
+    elements = 3
+    weights = []
+    with open(user_cost, 'r') as f:
+        f.readline() # skip comment line
+        initial = float(f.readline().split()[1]) # initial user cost
+        percent = float(f.readline().split()[1]) # user cost increase percent
+        elements = int(f.readline().split()[1]) # number of uc elements
+        for i in range(elements):
+            weights.append(float(f.readline().split()[1]))
 
-    pass
+        print("User cost file read.")
+
+    # Initialize comment line and solution dictionary
+    comment = ""
+    dic = {}
+
+    # Read solution log into dictionary
+    with open(log_in, 'r') as f:
+
+        comment = f.readline() # get comment line
+
+        for line in f:
+            row = line.split()
+            dic[row[0]] = [int(row[1]), float(row[2]), float(row[3]),
+               float(row[4]), float(row[5]), float(row[6]), float(row[7])]
+
+        print("Solution log read.")
+
+    # Process the solution log while writing new results
+    with open(log_out, 'w') as f:
+        print(comment[:-1], file=f)
+
+        for key in dic:
+            # Re-evaluate the feasibility of the solution
+            if dic[key][0] != -1:
+                uc = 0
+                for i in range(elements):
+                    uc += weights[i] * dic[key][2+i]
+                if uc <= percent * initial:
+                    dic[key][0] = 1
+                else:
+                    dic[key][0] = 0
+
+            # Write solution line to output log
+            line = key + '\t' + str(dic[key][0]) + '\t'
+            for e in dic[key][1:]:
+                line += str("%.15f"%e) + '\t'
+            print(line, file=f)
+
+        print("Output log written.")
 
 #==============================================================================
 def expand_solution(log_in, log_out, elements):
@@ -141,9 +191,9 @@ def expand_solution(log_in, log_out, elements):
 #==============================================================================
 # Testing
 
-log_merge("testing/log1.txt", "testing/log2.txt", "testing/log12.txt")
+#log_merge("testing/log1.txt", "testing/log2.txt", "testing/log12.txt")
 
-#feasibility_update("testing/log1.txt", "testing/uc.txt",
+#feasibility_update("testing/log1.txt", "testing/user_cost_data.txt",
 #                   "testing/log1_update.txt")
 
-#expand_solution("testing/log1.txt", "testing/log1_expand.txt", 5)
+expand_solution("testing/log1.txt", "testing/log1_expand.txt", 5)
