@@ -30,9 +30,66 @@ def log_merge(log_in1, log_in2, log_out, highest=True):
     objective or user cost values.
     """
 
-    # print statistics along the way
+    # Initialize comment line and solution dictionary
+    comment = ""
+    dic = {}
 
-    pass
+    # Read first log into dictionary
+    with open(log_in1, 'r') as f:
+
+        comment = f.readline() # get comment line
+
+        for line in f:
+            row = line.split()
+            dic[row[0]] = [int(row[1]), float(row[2]), float(row[3]),
+               float(row[4]), float(row[5]), float(row[6]), float(row[7])]
+
+        print("Log 1 read.")
+
+    conflicts = 0
+
+    # Read second log into same dictionary
+    with open(log_in2, 'r') as f:
+
+        f.readline() # skip comment line
+
+        for line in f:
+            row = line.split()
+            row = [row[0], int(row[1]), float(row[2]), float(row[3]),
+                   float(row[4]), float(row[5]), float(row[6]), float(row[7])]
+
+            # Test if this is a duplicate entry
+            if row[0] in dic.keys():
+
+                # If so, decide whether to take the higher or lower value
+                conflicts += 1
+                if (highest == True):
+                    dic[row[0]] = ([min(dic[row[0]][0], row[1])] +
+                       [max(dic[row[0]][i], row[i+1]) for i in range(1, 7)])
+                else:
+                    dic[row[0]] = ([max(dic[row[0]][0], row[1])] +
+                       [min(dic[row[0]][i], row[i+1]) for i in range(1, 7)])
+
+            else:
+                # If not, simply add the entry
+                dic[row[0]] = row[1:]
+
+        print("Log 2 read.")
+
+    print("Combined log contains "+str(len(dic))+" entries ("+str(conflicts)+
+                                       " conflicting entries resolved).")
+
+    # Write output log
+    with open(log_out, 'w') as f:
+        print(comment[:-1], file=f)
+
+        for key in dic:
+            line = key + '\t'
+            for e in dic[key]:
+                line += str(e) + '\t'
+            print(line, file=f)
+
+        print("Output log written.")
 
 #==============================================================================
 def feasibility_update(log_in, user_cost, log_out):
