@@ -8,6 +8,7 @@ Specifically, this is a set of programs meant for performing the following tasks
 * [Stop-Level Metrics (C++)](#stop-level-metrics)
 * [Candidate Express Route Generation (Mathematica)](#candidate-express-route-generation)
 * [Solution Log Editing (Python)](#solution-log-editing)
+* [Solution Analysis (C++)](#solution-analysis)
 
 These procedures are explained in more detail below. They are so specific to my applications that I would not expect them to be useful to anyone outside of my research group, but they are being provided here for anyone interested.
 
@@ -17,16 +18,18 @@ This program reads input files from a local `data/` folder. The following data f
 
 * `arc_data.txt`
 * `gravity_metrics.txt`
+* `final.txt`
 * `initial_flows.txt`
 * `initial_solution_log.txt`
 * `node_data.txt`
 * `objective_data.txt`
 * `problem_data.txt`
+* `solution.txt`
 * `transit_data.txt`
 * `user_cost_data.txt`
 * `vehicle_data.txt`
 
-Most of these correspond to the standard network input files used by the other programs that are part of this project, except for `gravity_metrics.txt` and `initial_flows.txt`, which are produced by the preprocessor [social-transit-solver-single](https://github.com/adam-rumpf/social-transit-solver-single). See the other repositories' READMEs for format details.
+Most of these correspond to the standard network input files used by the other programs that are part of this project, except for `gravity_metrics.txt` and `initial_flows.txt`, which are produced by the preprocessor [social-transit-solver-single](https://github.com/adam-rumpf/social-transit-solver-single), and except for `final.txt` and `solution.txt`, which are produced by the main solution algorithm [social-transit-solver](https://github.com/adam-rumpf/social-transit-solver). See the other repositories' READMEs for format details.
 
 ## Output Folder
 
@@ -71,3 +74,7 @@ This is a set of Python functions for editing solution logs between trial sets. 
 * `log_merge(log_in1, log_in2, log_out)`: Accepts file paths to two existing solution logs and an output file path. Merges the two input logs into a single output log by combining all entries.
 * `feasibility_update(log_in, user_cost, log_out)`: Accepts file paths to a solution log file, user cost data file, and an output file path. Reads the initial user cost, percentage increase, and user cost component weights from the user cost file and uses it to re-evaluate the feasibility of all solution log entries.
 * `solution_expand(log_in, log_out, elements)`: Accepts file pths to an existing solution log file and an output file, as well as a number of elements. Generates a copy of the solution log with the specified number of `0`'s appended to the solution vectors. For use in converting an initial solution log into one usable by the express route version.
+
+## Solution Analysis
+
+This is part of the main C++ program for analyzing the main solution algorithm outputs. Basic statistics are compiled for the solution log, and the final solution is processed to show which elements have changed by the most.

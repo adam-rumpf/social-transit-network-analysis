@@ -26,6 +26,8 @@ This project includes submodules for analyzing various aspects of the input neto
 #define OBJECTIVE_FILE "data/objective_data.txt"
 #define PROBLEM_FILE "data/problem_data.txt"
 #define FLOW_FILE "data/initial_flows.txt"
+#define FINAL_SOLUTION_FILE "data/final.txt"
+#define SOLUTION_LOG_FILE "data/solution.txt"
 
 // Define output file names
 #define STOP_METRIC_FILE "output/stop_metrics.txt"
@@ -39,6 +41,7 @@ typedef pair<double, int> stop_pair; // used to define a min-priority queue of m
 void loading_factors(Network *);
 void record_stop_metrics(Network *, const vector<double> &);
 void record_line_metrics(Network *, const vector<double> &);
+void solution_log_stats();
 
 /// Main driver.
 int main()
@@ -66,6 +69,9 @@ int main()
 
 	// Output delineated stop metric file
 	record_line_metrics(Net, stop_metrics);
+
+	// Calculate solution log statistics
+	solution_log_stats();
 
 	cin.get();
 
@@ -221,4 +227,67 @@ void record_line_metrics(Network * net_in, const vector<double> &metrics)
 	}
 	else
 		cout << "Line metric file failed to open." << endl;
+}
+
+/// Calculates solution log statistics.
+void solution_log_stats()
+{
+	vector<int> feasible_count = { 0, 0, 0 }; // counts of unknown/infeasible/feasible results
+
+	// Read solution log
+	cout << "Reading solution log..." << endl;
+	ifstream sol_file;
+	sol_file.open(SOLUTION_LOG_FILE);
+	if (sol_file.is_open())
+	{
+		string line, piece; // whole line and line element being read
+		getline(sol_file, line); // skip comment line
+		int count = 0;
+
+		while (sol_file.eof() == false)
+		{
+			// Get whole line as a string stream
+			getline(sol_file, line);
+			if (line.size() == 0)
+				// Break for blank line at file end
+				break;
+			stringstream stream(line);
+
+			// Go through each piece of the line
+			getline(stream, piece, '\t'); // solution
+			getline(stream, piece, '\t'); // feasible
+			int feas = stoi(piece);
+
+			// Tally feasibility
+			switch (feas)
+			{
+			case -1:
+				feasible_count[0]++;
+				break;
+			case 0:
+				feasible_count[1]++;
+				break;
+			case 1:
+				feasible_count[2]++;
+				break;
+			}
+		}
+
+		sol_file.close();
+		cout << "Solution log read!" << endl;
+	}
+	else
+		cout << "Solution log failed to open." << endl;
+
+	cout << "\nSolution log statistics (all):" << endl;
+	int feasible_total = feasible_count[0] + feasible_count[1] + feasible_count[2];
+	cout << "Total:              " << feasible_total << endl;
+	cout << "Percent unknown:    " << (100.0 * feasible_count[0]) / feasible_total << '%' << endl;
+	cout << "Percent infeasible: " << (100.0 * feasible_count[1]) / feasible_total << '%' << endl;
+	cout << "Percent feasible:   " << (100.0 * feasible_count[2]) / feasible_total << '%' << endl;
+	cout << "\nSolution log statistics (known only):" << endl;
+	feasible_total = feasible_count[1] + feasible_count[2];
+	cout << "Total:              " << feasible_total << endl;
+	cout << "Percent infeasible: " << (100.0 * feasible_count[1]) / feasible_total << '%' << endl;
+	cout << "Percent feasible:   " << (100.0 * feasible_count[2]) / feasible_total << '%' << endl;
 }
