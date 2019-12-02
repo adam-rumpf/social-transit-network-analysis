@@ -5,6 +5,7 @@ Includes functions for processing solution logs, including the following:
     -Re-evaluate the feasibility of all logged solutions for a different user
         cost increase bound.
     -Rewrite soluion log to include additional solution vector elements.
+    -Clear unknown entries from solution log.
 """
 
 #==============================================================================
@@ -214,3 +215,38 @@ def expand_solution(log_in, log_out, elements):
             print(line, file=f)
 
         print("Output log written.")
+
+#==============================================================================
+def clear_unknown(log_in, log_out):
+    """Clears solutions with unknown feasibility from the solution log.
+
+    Requires the following positional arguments:
+        log_in -- File path to an existing solution log to be culled.
+        log_out -- File path for the culled solution log.
+
+    The solution log is likely to accumulate a very large number of solutions
+    for which only the objective is evaluated, not the constraints. Since the
+    entire log is maintained in memory as the solution algorithm runs, the log
+    should be periodically cleared of these entries in order to save memory.
+    This should have a minimal effect on the solution time since the objective
+    function takes so little time to evaluate.
+
+    This script simply reads the input log while writing to the output log,
+    skipping lines with an unknown (-1) feasibility status.
+    """
+
+    # Read input log while writing to output log
+    with open(log_in, 'r') as fi:
+        with open(log_out, 'w') as fo:
+
+            print(fi.readline()[:-1], file=fo) # rewrite comment line
+
+            # Process input log line-by-line
+            for line in fi:
+                row = line.split()
+
+                # Write only entries with known feasibility
+                if (int(row[1]) != -1):
+                    print(line[:-1], file=fo)
+
+            print("Solution log processed.")

@@ -73,7 +73,8 @@ This is a set of Python functions for editing solution logs between trial sets. 
 
 * `log_merge(log_in1, log_in2, log_out)`: Accepts file paths to two existing solution logs and an output file path. Merges the two input logs into a single output log by combining all entries.
 * `feasibility_update(log_in, user_cost, log_out)`: Accepts file paths to a solution log file, user cost data file, and an output file path. Reads the initial user cost, percentage increase, and user cost component weights from the user cost file and uses it to re-evaluate the feasibility of all solution log entries.
-* `solution_expand(log_in, log_out, elements)`: Accepts file pths to an existing solution log file and an output file, as well as a number of elements. Generates a copy of the solution log with the specified number of `0`'s appended to the solution vectors. For use in converting an initial solution log into one usable by the express route version.
+* `solution_expand(log_in, log_out, elements)`: Accepts file paths to an existing solution log file and an output file, as well as a number of elements. Generates a copy of the solution log with the specified number of `0`'s appended to the solution vectors. For use in converting an initial solution log into one usable by the express route version.
+* `clear_unknown(log_in, log_out)`: Accepts file paths to an existing solution log file and an output file. Generates a copy of the given solution log with all unknown entries (feasibility status `-1`) dropped.
 
 ## Solution Analysis
 
