@@ -157,7 +157,7 @@ def feasibility_update(log_in, user_cost, log_out):
                 uc = 0
                 for i in range(elements):
                     uc += weights[i] * dic[key][2+i]
-                if uc <= percent * initial:
+                if uc <= (1 + percent) * initial:
                     dic[key][0] = 1
                 else:
                     dic[key][0] = 0
