@@ -102,7 +102,11 @@ void loading_factors(Network * net_in)
 	{
 		Arc * a = Net->core_arcs[i];
 		if (a->line >= 0)
-			factors[i] = a->flow / Net->lines[a->line]->capacity();
+		{
+			if (Net->lines[a->line]->capacity() > 0)
+				// Only include loading factors for lines with nonzero capacity
+				factors[i] = a->flow / Net->lines[a->line]->capacity();
+		}
 	}
 
 	// Calculate maximum arc loading factor
@@ -309,7 +313,7 @@ void compare_solutions(Network * net_in)
 	// Read initial solution log
 	cout << "Reading initial solution log..." << endl;
 	ifstream sol_file;
-	sol_file.open(SOLUTION_LOG_FILE);
+	sol_file.open(INITIAL_SOLUTION_LOG_FILE);
 	if (sol_file.is_open())
 	{
 		string line, piece; // whole line and line element being read
