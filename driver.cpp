@@ -1,10 +1,11 @@
 /**
 Main driver for network analysis tools.
 
-This project includes submodules for analyzing various aspects of the input netowrk, including the following:
+This project includes submodules for analyzing various aspects of the input network, including the following:
 -Evaluating whether the initial flow vector is "reasonable" by examining the flow:capacity ratio of each arc.
 -Evaluating the accessibility metric of every stop (using the population accessibility metric module, but treating the stops as population centers).
 -Selecting and constructing express route candidates.
+-Comparing the initial solution to the final solution.
 */
 
 #include <fstream>
@@ -187,7 +188,7 @@ void record_line_metrics(Network * net_in, const vector<double> &metrics)
 	Network * Net = net_in;
 
 	/*
-	We store the line-level stop metrics as a vector of prority queues.
+	We store the line-level stop metrics as a vector of priority queues.
 
 	There is one priority queue for each line, containing metric/stop ID pairs in ascending order of metric.
 	*/
@@ -229,7 +230,7 @@ void record_line_metrics(Network * net_in, const vector<double> &metrics)
 		}
 
 		out_file.close();
-		cout << "Successfuly recorded line metrics!" << endl;
+		cout << "Successfully recorded line metrics!" << endl;
 	}
 	else
 		cout << "Line metric file failed to open." << endl;

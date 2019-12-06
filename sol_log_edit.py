@@ -4,7 +4,7 @@ Includes functions for processing solution logs, including the following:
     -Merge solution logs from compatible trials.
     -Re-evaluate the feasibility of all logged solutions for a different user
         cost increase bound.
-    -Rewrite soluion log to include additional solution vector elements.
+    -Rewrite solution log to include additional solution vector elements.
     -Clear unknown entries from solution log.
 """
 
@@ -110,7 +110,7 @@ def feasibility_update(log_in, user_cost, log_out):
 
     The user cost file is read to obtain an initial user cost, percentage
     increase, and user cost component weights. The input solution log is then
-    processed and each entry's feasibility status is re-evalauted according to
+    processed and each entry's feasibility status is re-evaluated according to
     the new user cost function definition. The output log consists of a copy of
     the input solution log, but with feasibility values that reflect the given
     user cost parameters.
