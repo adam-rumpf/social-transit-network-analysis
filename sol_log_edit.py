@@ -6,6 +6,7 @@ Includes functions for processing solution logs, including the following:
         cost increase bound.
     -Rewrite solution log to include additional solution vector elements.
     -Clear unknown entries from solution log.
+    -Look up a solution log.
 """
 
 #==============================================================================
@@ -250,3 +251,31 @@ def clear_unknown(log_in, log_out):
                     print(line[:-1], file=fo)
 
             print("Solution log processed.")
+
+#==============================================================================
+def lookup(log, sol):
+    """Looks up a solution.
+
+    Requires the following positional arguments:
+        log -- File path to an existing solution log.
+        sol -- Solution string.
+
+    Returns a list containing the contents of the solution log's row for the
+    given solution.
+    """
+
+    # Read log
+    with open(log, 'r') as f:
+
+        for line in f:
+            row = line.split()
+
+            if row[0] != sol:
+                continue
+            else:
+                print ("Solution found:")
+                return [int(row[1]), float(row[2]), float(row[3]),
+                        float(row[4]), float(row[5]), float(row[6]),
+                        float(row[7])]
+
+        print("Solution not found.")
