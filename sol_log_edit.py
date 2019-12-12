@@ -5,9 +5,40 @@ Includes functions for processing solution logs, including the following:
     -Re-evaluate the feasibility of all logged solutions for a different user
         cost increase bound.
     -Rewrite solution log to include additional solution vector elements.
+    -Rewrite solution log to trim solution vector elements.
     -Clear unknown entries from solution log.
     -Look up a solution log.
 """
+
+#==============================================================================
+def _str2vec(s, delim='_'):
+    """Converts a solution string to a solution vector.
+
+    Requires a positional argument for the solution string.
+
+    Accepts a keyword argument 'delim' to specify the delimiter (default '_').
+    """
+
+    temp = s.split(sep=delim)
+
+    return [int(n) for n in temp]
+
+#==============================================================================
+def _vec2str(v, delim='_'):
+    """Converts a solution vector to a solution string.
+
+    Requires a positional argument for the solution vector.
+
+    Accepts a keyword argument 'delim' to specify the delimiter (default '_').
+    """
+
+    temp = ""
+    for i in range(len(v)):
+        temp += str(v[i])
+        if i < len(v)-1:
+            temp += delim
+
+    return temp
 
 #==============================================================================
 def log_merge(log_in1, log_in2, log_out, highest=True):
@@ -211,6 +242,63 @@ def expand_solution(log_in, log_out, elements):
             for i in range(elements):
                 line += "_0"
             line += '\t' + str(dic[key][0]) + '\t'
+            for e in dic[key][1:]:
+                line += str("%.15f"%e) + '\t'
+            print(line, file=f)
+
+        print("Output log written.")
+
+#==============================================================================
+def contract_solution(log_in, log_out, elements):
+    """Updates a solution log to include fewer solution vector elements.
+
+    Requires the following positional arguments:
+        log_in -- File path to an existing solution log to be updated.
+        log_out -- File path for the updated solution log.
+        elements -- Number of solution vector elements to remove.
+
+    Similar to the expansion function, this rewrites an existing solution log
+    to remove a specified number of elements from the end of the solution
+    vector. If all removed elements are zero, then the log entry may be kept,
+    but if any are nonzero the log entry must be discarded.
+    """
+
+    # Initialize comment line and solution dictionary
+    comment = ""
+    dic = {}
+    dropped = 0 # number of dropped elements
+
+    # Read solution log into dictionary (while truncating solutions)
+    with open(log_in, 'r') as f:
+
+        comment = f.readline() # get comment line
+
+        for line in f:
+            row = line.split()
+            solvec = _str2vec(row[0])
+
+            # Skip solutions with nonzero elements in the tail
+            sum = 0
+            for n in solvec[-elements:]:
+                sum += abs(n)
+            if sum > 0:
+                dropped += 1
+                continue
+
+            # Add truncated solution to dictionary
+            dic[_vec2str(solvec[:-elements])] = [int(row[1]), float(row[2]),
+                float(row[3]), float(row[4]), float(row[5]), float(row[6]),
+                float(row[7])]
+
+        print("Solution log read.")
+        print("Dropped "+str(dropped)+" solutions.")
+
+    # Write output log
+    with open(log_out, 'w') as f:
+        print(comment[:-1], file=f)
+
+        for key in dic:
+            line = key + '\t'
             for e in dic[key][1:]:
                 line += str("%.15f"%e) + '\t'
             print(line, file=f)
