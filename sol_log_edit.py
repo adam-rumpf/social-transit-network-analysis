@@ -298,7 +298,7 @@ def contract_solution(log_in, log_out, elements):
         print(comment[:-1], file=f)
 
         for key in dic:
-            line = key + '\t'
+            line = key + '\t' + str(dic[key][0]) + '\t'
             for e in dic[key][1:]:
                 line += str("%.15f"%e) + '\t'
             print(line, file=f)
