@@ -77,6 +77,7 @@ This is a set of Python functions for editing solution logs between trial sets. 
 * `solution_contract(log_in, log_out, elements)`: Accepts file paths to an existing solution log file and an output file, as well as a number of elements. Generates a copy of the solution log with the specified number of elements truncated from the solution vectors. If any truncated element is nonzero, the log entry is dropped since the corresponding solution is no longer feasible. For use in converting an express route log to one usable in the initial version.
 * `clear_unknown(log_in, log_out)`: Accepts file paths to an existing solution log file and an output file. Generates a copy of the given solution log with all unknown entries (feasibility status `-1`) dropped.
 * `lookup(log, sol)`: Accepts a solution log and a solution string and returns the solution log row.
+* `rewind(iteration, event_in, event_out, memory_in, memory_out)`: Accepts an iteration number, event log input/output paths, and memory log input/output paths. Alters the event log and memory log in order to rewind the search process to the specified iteration.
 
 ## Solution Analysis
 

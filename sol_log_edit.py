@@ -8,6 +8,7 @@ Includes functions for processing solution logs, including the following:
     -Rewrite solution log to trim solution vector elements.
     -Clear unknown entries from solution log.
     -Look up a solution log.
+    -Rewind a search to a specified iteration.
 """
 
 #==============================================================================
@@ -367,3 +368,115 @@ def lookup(log, sol):
                         float(row[7])]
 
         print("Solution not found.")
+
+#==============================================================================
+def rewind(iteration, event_in, event_out, memory_in, memory_out):
+    """Alters solution logs to rewind to a specified iteration.
+
+    Requires the following positional arguments:
+        iteration -- Iteration number to rewind to (i.e. the iteration number
+            of the search as soon as it restarts).
+        event_in -- File path to an existing event log.
+        event_out -- File path for the edited event log.
+        memory_in -- File path to an existing memory log.
+        memory_out -- File path for the edited memory log.
+
+    This is meant for rewinding an existing search to a specified iteration,
+    possibly to alter some attributes to see how the search finishes under
+    different circumstances.
+
+    For the event log we need only truncate the log to leave off just before
+    the specified iteration number.
+
+    The memory log may come from many iterations after the specified point, and
+    so we simply reset most of its contents, keeping only what can be gathered
+    from the event log. We also pick up from the current solution, teating it
+    as the best known. The final iteration before the specified iteration is
+    used as the attractive solution set.
+    """
+
+    # Information gathered from event log
+    obj = 0 # current objective
+    tenure = 0 # current tabu tenure
+    temperature = 0 # current SA temperature
+    sol = [] # current solution vector
+    sol_size = 0 # size of solution vector
+
+    # Read input event log while writing to output event log
+    first = True
+    with open(event_in, 'r') as fi:
+        with open(event_out, 'w') as fo:
+
+            # Process input log line-by-line
+            for line in fi:
+
+                # Reproduce line in output log
+                print(line[:-1], file=fo)
+
+                # If this is the first row, skip the rest
+                if first == True:
+                    first = False
+                    continue
+
+                # On the final used line, gather information and then break
+                row = line.split()
+                if int(row[0]) == iteration-1:
+                    obj = float(row[1])
+                    tenure = float(row[9])
+                    temperature = float(row[10])
+                    sol = _str2vec(row[-1])
+                    sol_size = len(sol)
+                    break
+
+            print("Event log processed.")
+
+    # Read input memory log while writing to output memory log
+    first = True
+    with open(memory_in, 'r') as fi:
+        with open(memory_out, 'w') as fo:
+
+            # Comment line
+            print(fi.readline()[:-1], file=fo)
+
+            # Tabu tenures
+            line = ""
+            zero = 0.0
+            for i in range(sol_size):
+                line += str("%.15f"%zero) + '\t'
+            print(line, file=fo)
+            print(line, file=fo)
+
+            # Solutions
+            line = ""
+            for n in sol:
+                line += str(n) + '\t'
+            print(line, file=fo)
+            print(line, file=fo)
+
+            # Objective
+            line = str("%.15f"%obj)
+            print(line, file=fo)
+            print(line, file=fo)
+
+            # Iteration
+            print(iteration, file=fo)
+
+            # Nonimprovement counters
+            print(0, file=fo)
+            print(0, file=fo)
+
+            # Tenure and temperature
+            line = str("%.15f"%tenure)
+            print(tenure, file=fo)
+            line = str("%.15f"%temperature)
+            print(temperature, file=fo)
+
+            # Attractive set
+            line = str("%.15f"%obj) + '\t'
+            print(line, file=fo)
+            line = ""
+            for n in sol:
+                line += str(n) + '\t'
+            print(line, file=fo)
+
+            print("Memory log processed.")
