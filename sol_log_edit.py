@@ -390,7 +390,7 @@ def rewind(iteration, event_in, event_out, memory_in, memory_out):
 
     The memory log may come from many iterations after the specified point, and
     so we simply reset most of its contents, keeping only what can be gathered
-    from the event log. We also pick up from the current solution, teating it
+    from the event log. We also pick up from the current solution, treating it
     as the best known. The final iteration before the specified iteration is
     used as the attractive solution set.
     """
