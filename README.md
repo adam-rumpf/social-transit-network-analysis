@@ -1,6 +1,6 @@
 # social-transit-network-analysis
 
-Preprocessing tools for analyzing the input network for a research project of mine dealing with a public transit design model with social access objectives. This is meant for use in analyzing the network after preprocessing with [social-transit-solver-single](https://github.com/adam-rumpf/social-transit-solver-single), with which this repository shares a large amount of code.
+Preprocessing tools for analyzing the input network for a research project of mine dealing with a public transit design model with social access objectives (see project home page [here](https://github.com/adam-rumpf/social-transit)). This is meant for use in analyzing the network after preprocessing with [social-transit-solver-single](https://github.com/adam-rumpf/social-transit-solver-single), with which this repository shares a large amount of code.
 
 Specifically, this is a set of programs meant for performing the following tasks:
 
